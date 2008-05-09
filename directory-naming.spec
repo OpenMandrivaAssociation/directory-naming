@@ -185,6 +185,7 @@ CLASSPATH=$CLASSPATH:$(pwd)/naming-resources/target/naming-resources-%{version}.
 CLASSPATH=$CLASSPATH:$(pwd)/naming-management/target/naming-management-%{version}.jar
 CLASSPATH=$CLASSPATH:$(pwd)/naming-factory/target/naming-factory-%{version}.jar
 CLASSPATH=$CLASSPATH:target/classes:target/test-classes
+export OPT_JAR_LIST="ant/ant-nodeps"
 %ant -Dbuild.sysclasspath=first jar javadoc
 %endif
 
