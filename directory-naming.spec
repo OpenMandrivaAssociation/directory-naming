@@ -66,6 +66,7 @@ BuildRequires:  jpackage-utils >= 0:1.7.3
 BuildRequires:  java-rpmbuild
 BuildRequires:  java-devel >= 0:1.4.2
 BuildRequires:  ant >= 0:1.6.5
+BuildRequires:  ant-nodeps
 BuildRequires:  hsqldb
 BuildRequires:  junit
 %if %{with_maven}
@@ -116,8 +117,6 @@ Old directory/naming module.
 %package javadoc
 Summary:        Javadoc for %{name}
 Group:          Development/Java
-Requires(post): /bin/rm /bin/ln
-Requires(postun): /bin/rm
 
 %description javadoc
 %{summary}.
