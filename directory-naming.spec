@@ -67,6 +67,7 @@ BuildRequires:  java-rpmbuild
 BuildRequires:  java-devel >= 0:1.4.2
 BuildRequires:  ant >= 0:1.6.5
 BuildRequires:  ant-nodeps
+BuildRequires:  ant-junit
 BuildRequires:  hsqldb
 BuildRequires:  junit
 %if %{with_maven}
@@ -185,7 +186,7 @@ CLASSPATH=$CLASSPATH:$(pwd)/naming-resources/target/naming-resources-%{version}.
 CLASSPATH=$CLASSPATH:$(pwd)/naming-management/target/naming-management-%{version}.jar
 CLASSPATH=$CLASSPATH:$(pwd)/naming-factory/target/naming-factory-%{version}.jar
 CLASSPATH=$CLASSPATH:target/classes:target/test-classes
-export OPT_JAR_LIST="ant/ant-nodeps"
+export OPT_JAR_LIST="ant/ant-nodeps ant/ant-junit junit"
 %ant -Dbuild.sysclasspath=first jar javadoc
 %endif
 
