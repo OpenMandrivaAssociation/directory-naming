@@ -40,7 +40,7 @@
 
 Name:           directory-naming
 Version:        0.8
-Release:        %mkrel 2.0.2
+Release:        %mkrel 2.0.3
 Epoch:          0
 Summary:        Directory Naming
 License:        Apache Software License 2.0
