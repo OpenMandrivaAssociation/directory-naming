@@ -28,29 +28,17 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-%define gcj_support 1
-
-# If you don't want to build with maven, and use straight ant instead,
-# give rpmbuild option '--without maven'
-%define _without_maven 1
-%define with_maven %{!?_without_maven:1}%{?_without_maven:0}
-%define without_maven %{?_without_maven:1}%{!?_without_maven:0}
-
-%define section free
-
 Name:           directory-naming
 Version:        0.8
-Release:        %mkrel 2.0.3
-Epoch:          0
-Summary:        Directory Naming
-License:        Apache Software License 2.0
-Source0:        directory-naming-0.8.tar.gz
+Release:        4
+Summary:        Apache Directory Naming Component
+License:        ASL 2.0
+URL:            http://directory.apache.org
+Group:          Development/Java
+
+Source0:        directory-naming-0.8.tar.bz2
 # svn export -r 124846 http://svn.apache.org/repos/asf/directory/sandbox/dormant-subprojects/naming/ directory-naming-0.8
 
-Source1:        pom-maven2jpp-depcat.xsl
-Source2:        pom-maven2jpp-newdepmap.xsl
-Source3:        pom-maven2jpp-mapdeps.xsl
-Source4:        directory-naming-0.8-jpp-depmap.xml
 Source5:        http://repo1.maven.org/maven2/directory-naming/naming-core/0.8/naming-core-0.8.pom
 Source6:        http://repo1.maven.org/maven2/directory-naming/naming-config/0.8/naming-config-0.8.pom
 Source7:        http://repo1.maven.org/maven2/directory-naming/naming-factory/0.8/naming-factory-0.8.pom
@@ -58,29 +46,12 @@ Source8:        http://repo1.maven.org/maven2/directory-naming/naming-java/0.8/n
 Source9:        http://repo1.maven.org/maven2/directory-naming/naming-management/0.8/naming-management-0.8.pom
 Source10:       http://repo1.maven.org/maven2/directory-naming/naming-resources/0.8/naming-resources-0.8.pom
 
-Patch0:         directory-naming-0.8-project.patch
-
-URL:            http://directory.apache.org
-Group:          Development/Java
-BuildRequires:  jpackage-utils >= 0:1.7.3
-BuildRequires:  java-rpmbuild
-BuildRequires:  java-devel >= 0:1.4.2
-BuildRequires:  ant >= 0:1.6.5
-BuildRequires:  ant-nodeps
-BuildRequires:  ant-junit
+BuildRequires:  jpackage-utils >= 1.7.3
+BuildRequires:  java-devel >= 1.4.2
+BuildRequires:  ant >= 1.6.5
 BuildRequires:  hsqldb
 BuildRequires:  junit
-%if %{with_maven}
-BuildRequires:  maven >= 0:1.1
-BuildRequires:  maven-plugins-base
-BuildRequires:  maven-plugin-license
-BuildRequires:  maven-plugin-multiproject
-BuildRequires:  maven-plugin-test
-BuildRequires:  maven-plugin-site
-BuildRequires:  maven-plugin-xdoc
-BuildRequires:  saxon
-BuildRequires:  saxon-scripts
-%endif
+BuildRequires:  ant-junit
 BuildRequires:  jakarta-commons-beanutils
 BuildRequires:  jakarta-commons-collections
 BuildRequires:  jakarta-commons-dbcp
@@ -88,7 +59,7 @@ BuildRequires:  jakarta-commons-digester
 BuildRequires:  jakarta-commons-lang
 BuildRequires:  jakarta-commons-logging
 BuildRequires:  jakarta-commons-pool
-BuildRequires:  geronimo-javamail-1.3.1-api
+BuildRequires:  classpathx-mail
 BuildRequires:  mx4j
 
 Requires:  jakarta-commons-beanutils
@@ -98,75 +69,35 @@ Requires:  jakarta-commons-digester
 Requires:  jakarta-commons-lang
 Requires:  jakarta-commons-logging
 Requires:  jakarta-commons-pool
-Requires:  geronimo-javamail-1.3.1-api
+Requires:  classpathx-mail
 Requires:  mx4j
-Requires(post):    jpackage-utils >= 0:1.7.3
-Requires(postun):  jpackage-utils >= 0:1.7.3
+Requires(post):    jpackage-utils >= 1.7.3
+Requires(postun):  jpackage-utils >= 1.7.3
 
-%if ! %{gcj_support}
 BuildArch:      noarch
-%endif
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-buildroot
-
-%if %{gcj_support}
-BuildRequires:    java-gcj-compat-devel
-%endif
+BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %description
-Old directory/naming module.
+Naming is a lightweight, in-memory JNDI service provider.  To
+enable flexible deployment with limited dependencies, Naming is divided in 6
+packages, each producing a separate jar artifact.
 
 %package javadoc
 Summary:        Javadoc for %{name}
 Group:          Development/Java
 
 %description javadoc
-%{summary}.
-
-%if %{with_maven}
-%package manual
-Summary:        Manual for %{name}
-Group:          Development/Java
-
-%description manual
-%{summary}.
-%endif
+API documentation for %{name}.
 
 %prep
-%setup -q 
-%remove_java_binaries
-%patch0 -b .sav0
+%setup -q
+# remove all binary libs
+for j in $(find . -name "*.jar"); do
+    mv $j $j.no
+done
+sed -i "s/\r//" LICENSE.txt
 
 %build
-%if %{with_maven}
-if [ ! -f %{SOURCE4} ]; then
-export DEPCAT=$(pwd)/directory-naming-0.8-depcat.new.xml
-echo '<?xml version="1.0" standalone="yes"?>' > $DEPCAT
-echo '<depset>' >> $DEPCAT
-for p in $(find . -name project.xml); do
-    pushd $(dirname $p)
-    /usr/bin/saxon project.xml %{SOURCE1} >> $DEPCAT
-    popd
-done
-echo >> $DEPCAT
-echo '</depset>' >> $DEPCAT
-/usr/bin/saxon $DEPCAT %{SOURCE2} > directory-naming-0.8-depmap.new.xml
-fi
-
-for p in $(find . -name project.xml); do
-    pushd $(dirname $p)
-    cp project.xml project.xml.orig
-    /usr/bin/saxon -o project.xml project.xml.orig %{SOURCE3} map=%{SOURCE4}
-    popd
-done
-
-export MAVEN_HOME_LOCAL=$(pwd)/.maven
-
-maven \
-        -Dmaven.repo.remote=file:/usr/share/maven/repository \
-        -Dmaven.home.local=${MAVEN_HOME_LOCAL} \
-        -Dgoal=jar:jar,javadoc:generate,xdoc:transform \
-        multiproject:install multiproject:site
-%else
 export CLASSPATH=$(build-classpath \
 commons-beanutils \
 commons-collections \
@@ -175,23 +106,25 @@ commons-digester \
 commons-lang \
 commons-logging \
 commons-pool \
-geronimo-javamail-1.3.1-api \
 hsqldb \
+javamail \
 junit \
 mx4j/mx4j-jmx \
 )
-CLASSPATH=$CLASSPATH:$(pwd)/naming-core/target/naming-core-%{version}.jar
-CLASSPATH=$CLASSPATH:$(pwd)/naming-java/target/naming-java-%{version}.jar
-CLASSPATH=$CLASSPATH:$(pwd)/naming-resources/target/naming-resources-%{version}.jar
-CLASSPATH=$CLASSPATH:$(pwd)/naming-management/target/naming-management-%{version}.jar
-CLASSPATH=$CLASSPATH:$(pwd)/naming-factory/target/naming-factory-%{version}.jar
-CLASSPATH=$CLASSPATH:target/classes:target/test-classes
-export OPT_JAR_LIST="ant/ant-nodeps ant/ant-junit junit"
-%ant -Dbuild.sysclasspath=first jar javadoc
-%endif
+
+CLASSPATH=$CLASSPATH:$(pwd)/naming-config/target/classes:$(pwd)/naming-config/target/test-classes
+CLASSPATH=$CLASSPATH:$(pwd)/naming-core/target/classes:$(pwd)/naming-core/target/test-classes
+CLASSPATH=$CLASSPATH:$(pwd)/naming-factory/target/classes:$(pwd)/naming-factory/target/test-classes
+CLASSPATH=$CLASSPATH:$(pwd)/naming-java/target/classes:$(pwd)/naming-java/target/test-classes
+CLASSPATH=$CLASSPATH:$(pwd)/naming-management/target/classes:$(pwd)/naming-management/target/test-classes
+CLASSPATH=$CLASSPATH:$(pwd)/naming-resources/target/classes:$(pwd)/naming-resources/target/test-classes
+
+export OPT_JAR_LIST="junit ant/ant-junit"
+
+ant -Dbuild.sysclasspath=only jar javadoc
 
 %install
-rm -rf %{buildroot}
+export NO_BRP_CHECK_BYTECODE_VERSION=true
 # jars
 %__mkdir_p %{buildroot}%{_javadir}/%{name}
 for p in \
@@ -221,80 +154,20 @@ done
 %__install -m 644 %{SOURCE10} %{buildroot}%{_datadir}/maven2/poms/JPP.%{name}-naming-resources.pom
 %add_to_maven_depmap %{name} naming-resources %{version} JPP/%{name} naming-resources
 
-# javadoc
-%__mkdir_p %{buildroot}%{_javadocdir}/%{name}-%{version}
-%if %{with_maven}
-%__cp -pr target/docs/apidocs/* %{buildroot}%{_javadocdir}/%{name}-%{version}
-%__rm -rf target/docs/apidocs
-
-%__mkdir_p %{buildroot}%{_javadocdir}/%{name}-%{version}/config
-%__cp -pr target/docs/naming-config/apidocs/* %{buildroot}%{_javadocdir}/%{name}-%{version}/config
-%__rm -rf target/docs/naming-config/apidocs
-
-%__mkdir_p %{buildroot}%{_javadocdir}/%{name}-%{version}/core
-%__cp -pr target/docs/naming-core/apidocs/* %{buildroot}%{_javadocdir}/%{name}-%{version}/core
-%__rm -rf target/docs/naming-core/apidocs
-
-%__mkdir_p %{buildroot}%{_javadocdir}/%{name}-%{version}/factory
-%__cp -pr target/docs/naming-factory/apidocs/* %{buildroot}%{_javadocdir}/%{name}-%{version}/factory
-%__rm -rf target/docs/naming-factory/apidocs
-
-%__mkdir_p %{buildroot}%{_javadocdir}/%{name}-%{version}/java
-%__cp -pr target/docs/naming-java/apidocs/* %{buildroot}%{_javadocdir}/%{name}-%{version}/java
-%__rm -rf target/docs/naming-java/apidocs
-
-%__mkdir_p %{buildroot}%{_javadocdir}/%{name}-%{version}/management
-%__cp -pr target/docs/naming-management/apidocs/* %{buildroot}%{_javadocdir}/%{name}-%{version}/management
-%__rm -rf target/docs/naming-management/apidocs
-
-%__mkdir_p %{buildroot}%{_javadocdir}/%{name}-%{version}/resources
-%__cp -pr target/docs/naming-resources/apidocs/* %{buildroot}%{_javadocdir}/%{name}-%{version}/resources
-%__rm -rf target/docs/naming-resources/apidocs
-%else
-%__cp -pr dist/docs/api/* %{buildroot}%{_javadocdir}/%{name}-%{version}/
-%endif
-
-ln -s %{name}-%{version} %{buildroot}%{_javadocdir}/%{name} 
-
-# manual
+# docs
 %__mkdir_p %{buildroot}%{_docdir}/%{name}-%{version}
 %__cp LICENSE.txt  %{buildroot}%{_docdir}/%{name}-%{version}
-%if %{with_maven}
-%__cp -pr target/docs/* %{buildroot}%{_docdir}/%{name}-%{version}
-%endif
-
-%{gcj_compile}
-
-%clean
-%__rm -rf %{buildroot}
 
 %post
 %update_maven_depmap
-%if %{gcj_support}
-%{update_gcjdb}
-%endif
 
 %postun
 %update_maven_depmap
-%if %{gcj_support}
-%{clean_gcjdb}
-%endif
 
 %files
 %defattr(0644,root,root,0755)
-%{_docdir}/%{name}-%{version}/LICENSE.txt 
+%{_docdir}/*
 %{_javadir}/%{name}
 %{_datadir}/maven2/poms/*
-%{_mavendepmapfragdir}
-%{gcj_files}
+%config %{_mavendepmapfragdir}
 
-%files javadoc
-%defattr(0644,root,root,0755)
-%{_javadocdir}/%{name}-%{version}
-%doc %{_javadocdir}/%{name}
-
-%if %{with_maven}
-%files manual
-%defattr(0644,root,root,0755)
-%doc %{_docdir}/%{name}-%{version}
-%endif
