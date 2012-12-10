@@ -1,0 +1,24 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>directory-naming</groupId>
+  <artifactId>naming-management</artifactId>
+  <name>Naming Management</name>
+  <version>0.8</version>
+  <dependencies>
+    <dependency>
+      <groupId>${pom.groupId}</groupId>
+      <artifactId>naming-core</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>mx4j</groupId>
+      <artifactId>mx4j-jmx</artifactId>
+      <version>1.1.1</version>
+    </dependency>
+    <dependency>
+      <groupId>${pom.groupId}</groupId>
+      <artifactId>naming-java</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+  </dependencies>
+</project>

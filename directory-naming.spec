@@ -171,3 +171,31 @@ done
 %{_datadir}/maven2/poms/*
 %config %{_mavendepmapfragdir}
 
+
+
+%changelog
+* Sun Nov 27 2011 Guilherme Moro <guilherme@mandriva.com> 0.8-6
++ Revision: 733869
+- rebuild
+- imported package directory-naming
+
+* Thu Dec 09 2010 Oden Eriksson <oeriksson@mandriva.com> 0:0.8-2.0.3mdv2011.0
++ Revision: 617785
+- the mass rebuild of 2010.0 packages
+
+* Thu Sep 03 2009 Thierry Vignaud <tv@mandriva.org> 0:0.8-2.0.2mdv2010.0
++ Revision: 428249
+- rebuild
+
+* Thu Aug 07 2008 Thierry Vignaud <tv@mandriva.org> 0:0.8-2.0.1mdv2009.0
++ Revision: 266563
+- rebuild early 2009.0 package (before pixel changes)
+
+* Fri May 09 2008 Alexander Kurtakov <akurtakov@mandriva.org> 0:0.8-1.0.1mdv2009.0
++ Revision: 204975
+- add ant-junit BR
+- put ant-nodeps on the opt_jar_list
+- BR ant-nodeps
+- import directory-naming
+
+
