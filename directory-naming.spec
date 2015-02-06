@@ -30,7 +30,7 @@
 
 Name:           directory-naming
 Version:        0.8
-Release:        6
+Release:        7
 Summary:        Apache Directory Naming Component
 License:        ASL 2.0
 URL:            http://directory.apache.org
