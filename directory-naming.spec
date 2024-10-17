@@ -33,7 +33,7 @@ Version:        0.8
 Release:        7
 Summary:        Apache Directory Naming Component
 License:        ASL 2.0
-URL:            http://directory.apache.org
+URL:            https://directory.apache.org
 Group:          Development/Java
 
 Source0:        directory-naming-0.8.tar.bz2
